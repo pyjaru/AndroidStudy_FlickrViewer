@@ -1,5 +1,6 @@
 package net.pyjaru.photogallery;
 
+import android.content.res.Resources;
 import android.net.Uri;
 import android.util.Log;
 
@@ -25,8 +26,11 @@ import java.util.List;
  */
 
 public class FlickrFetchr {
-    private static final String TAG = "FlickrFetchr";
-    private static final String API_KEY = "";
+    private static final String TAG = "FlickrFetcher";
+    // resource에 string으로 두고, manifest에서 meta-data로 값을 두면 배포 후에도
+    // api가 노출되지 않는다카더라 통신.(배포 프로젝트에서는 테스트해보자.)
+    private static final String API_KEY = BuildConfig.FLICKR_API_KEY;
+
 
     public byte[] getUrlBytes(String urlSpec) throws IOException {
         URL url = new URL(urlSpec);

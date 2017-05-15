@@ -3,6 +3,7 @@ package net.pyjaru.photogallery;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,7 +31,6 @@ public class PhotoGalleryFragment extends Fragment {
     private RecyclerView mPhotoRecyclerView;
     private List<GalleryItem> mItems = new ArrayList<>();
     private ThumbnailDownloader<PhotoHolder> mThumbnailDownloader;
-    private static FetchItemsTask mFetchItemsTask;
     public static PhotoGalleryFragment newInstance() {
         return new PhotoGalleryFragment();
     }
@@ -39,8 +39,7 @@ public class PhotoGalleryFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        mFetchItemsTask = new FetchItemsTask();
-        mFetchItemsTask.execute();
+        new FetchItemsTask().execute();
 
 //        Handler responseHandler = new Handler();
 //        mThumbnailDownloader = new ThumbnailDownloader<>(responseHandler);
@@ -72,24 +71,19 @@ public class PhotoGalleryFragment extends Fragment {
         mPhotoRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
 
         mPhotoRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            private boolean isDownScroll = false;
+
+            int position = 0;
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                if(recyclerView.getScrollState() == RecyclerView.SCROLL_STATE_SETTLING){
-                    if(isDownScroll){
-                        mFetchItemsTask.execute();
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if(!recyclerView.canScrollVertically(1)){
+                    Log.i(TAG, "Scroll dy = " + String.valueOf(dy));
+                    if(dy > 0){
+                        new FetchItemsTask().execute();
                     }
                 }
             }
 
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if(dy>0){
-                    isDownScroll = true;
-                } else {
-                    isDownScroll = false;
-                }
-            }
         });
         setupAdapter();
 
@@ -106,7 +100,7 @@ public class PhotoGalleryFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
 //        mThumbnailDownloader.quit();
-        Log.i(TAG, "Background thread destroyed");
+//        Log.i(TAG, "Background thread destroyed");
     }
 
     private void setupAdapter() {
@@ -178,13 +172,11 @@ public class PhotoGalleryFragment extends Fragment {
             return new FlickrFetchr().fetchItems(mPage);
         }
 
-
-
         @Override
         protected void onPostExecute(List<GalleryItem> items) {
             if(mItems == null)
                 mItems = items;
-            else if(mPage < 100) {
+            else if(mPage < 3) {
                 //새로운 아이템이 존재하면 페이지 증가...
                 mItems.addAll(items);
                 mPage++;
