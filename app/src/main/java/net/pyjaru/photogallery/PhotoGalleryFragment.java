@@ -174,14 +174,16 @@ public class PhotoGalleryFragment extends Fragment {
 
         @Override
         protected void onPostExecute(List<GalleryItem> items) {
+
             if(mItems == null)
                 mItems = items;
-            else if(mPage < 3) {
+            else if(mPage < 10) {
                 //새로운 아이템이 존재하면 페이지 증가...
                 mItems.addAll(items);
                 mPage++;
             }
-            setupAdapter();
+            mPhotoRecyclerView.getAdapter().notifyDataSetChanged();
+//            setupAdapter();
         }
 
     }
