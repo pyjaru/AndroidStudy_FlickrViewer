@@ -1,6 +1,5 @@
 package net.pyjaru.photogallery;
 
-import android.content.res.Resources;
 import android.net.Uri;
 import android.util.Log;
 
@@ -8,10 +7,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,10 +22,17 @@ import java.util.List;
 
 public class FlickrFetchr {
     private static final String TAG = "FlickrFetcher";
-    // resource에 string으로 두고, manifest에서 meta-data로 값을 두면 배포 후에도
-    // api가 노출되지 않는다카더라 통신.(배포 프로젝트에서는 테스트해보자.)
     private static final String API_KEY = BuildConfig.FLICKR_API_KEY;
-
+    private static final String FETCH_RECENTS_METHOD = "flickr.photos.getRecent";
+    private static final String SEARCH_METHOD = "flickr.photos.search";
+    private static final Uri ENDPOINT = Uri.parse("https://api.flickr.com/services/rest/")
+            .buildUpon()
+            .appendQueryParameter("method", "flickr.Photos.getRecent")
+            .appendQueryParameter("api_key", API_KEY)
+            .appendQueryParameter("format", "json")
+            .appendQueryParameter("nojsoncallback","1")
+            .appendQueryParameter("extras","url_s")
+            .build();
 
     public byte[] getUrlBytes(String urlSpec) throws IOException {
         URL url = new URL(urlSpec);
@@ -60,34 +62,40 @@ public class FlickrFetchr {
         return new String(getUrlBytes(urlSpec));
     }
 
-    public List<GalleryItem> fetchItems(int page){
+    public List<GalleryItem> fetchRecentPhotos(Integer page){
+        String url = buildUrl(FETCH_RECENTS_METHOD, null, page);
+        return downloadGalleryItems(url);
+    }
+
+    public List<GalleryItem> searchPhotos(String query, Integer page){
+        String url = buildUrl(SEARCH_METHOD, query, page);
+        return downloadGalleryItems(url);
+    }
+
+    public List<GalleryItem> downloadGalleryItems(String url){
         List<GalleryItem> items = new ArrayList<>();
 
         try {
-            String url = Uri.parse("https://api.flickr.com/services/rest/")
-                    .buildUpon()
-                    .appendQueryParameter("method", "flickr.Photos.getRecent")
-                    .appendQueryParameter("api_key", API_KEY)
-                    .appendQueryParameter("format", "json")
-                    .appendQueryParameter("nojsoncallback","1")
-                    .appendQueryParameter("extras","url_s")
-                    .appendQueryParameter("page",String.valueOf(page))
-                    .build().toString();
-
             String jsonString = getUrlString(url);
-            Log.i(TAG, "Received JSON: " + jsonString);
-//            JSONObject jsonBody = new JSONObject(jsonString);
-//            parseItems(items, jsonBody);
             parseItemsByGson(items, jsonString);
+            Log.i(TAG, "Received JSON: " + jsonString);
         }
-//        catch (JSONException je){
-//            Log.e(TAG, "Failed to parse JSON", je);
-//        }
         catch (IOException ioe) {
             Log.e(TAG, "Failed to fetch items", ioe);
         }
 
         return items;
+    }
+
+    private String buildUrl(String method, String query, Integer page){
+        Uri.Builder uriBuilder = ENDPOINT.buildUpon().appendQueryParameter("method",method);
+
+        if(method.equals(SEARCH_METHOD))
+            uriBuilder.appendQueryParameter("text", query);
+        if(page>0)
+            uriBuilder.appendQueryParameter("page", page.toString());
+
+        return uriBuilder.build().toString();
     }
 
     //reference : http://m.blog.naver.com/e3jk1234/60197530396
@@ -97,7 +105,7 @@ public class FlickrFetchr {
         JsonElement rootElement = parser.parse(jsonString)
                 .getAsJsonObject().get("photos")
                 .getAsJsonObject().get("photo");
-        List<Photo> photos = (List<Photo>)gson.fromJson(rootElement, new TypeToken<List<Photo>>(){}.getType());
+        List<Photo> photos = gson.fromJson(rootElement, new TypeToken<List<Photo>>(){}.getType());
 
         for(Photo photo : photos){
             if(photo.url_s == null || photo.url_s.isEmpty()) continue;
@@ -105,27 +113,6 @@ public class FlickrFetchr {
             item.setId(photo.id);
             item.setCaption(photo.title);
             item.setUrl(photo.url_s);
-            items.add(item);
-        }
-    }
-
-    private void parseItems(List<GalleryItem> items, JSONObject jsonBody)
-            throws IOException, JSONException {
-        JSONObject photosJsonObject = jsonBody.getJSONObject("photos");
-        JSONArray photoJsonArray = photosJsonObject.getJSONArray("photo");
-
-        for(int i = 0 ; i < photoJsonArray.length(); i++){
-            JSONObject photoJsonObject = photoJsonArray.getJSONObject(i);
-
-            GalleryItem item = new GalleryItem();
-            item.setId(photoJsonObject.getString("id"));
-            item.setCaption(photoJsonObject.getString("title"));
-
-            if(!photoJsonObject.has("url_s")){
-                continue;
-            }
-            item.setUrl(photoJsonObject.getString("url_s"));
-
             items.add(item);
         }
     }

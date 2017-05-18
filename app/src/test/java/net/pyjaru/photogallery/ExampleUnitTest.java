@@ -19,4 +19,9 @@ public class ExampleUnitTest {
     public void test_primitives() throws Exception {
 
     }
+
+    @Test
+    public void TestInteger() throws Exception {
+        assertEquals(new Integer(null),new Integer(0)); // Failed. Occured Exception < java.lang.NumberFormatException : Null >
+    }
 }
