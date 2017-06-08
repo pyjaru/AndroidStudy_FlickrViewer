@@ -3,7 +3,6 @@ package net.pyjaru.photogallery;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -146,22 +145,31 @@ public class PhotoGalleryFragment extends VisibleFragment {
         }
     }
 
-    private class PhotoHolder extends RecyclerView.ViewHolder {
+    private class PhotoHolder extends RecyclerView.ViewHolder implements  View.OnClickListener{
         private ImageView mItemImageView;
+        private GalleryItem mGalleryItem;
 
         public PhotoHolder(View itemView) {
             super(itemView);
 
             mItemImageView = (ImageView) itemView
                     .findViewById(R.id.fragment_photo_gallery_image_view);
-
+            itemView.setOnClickListener(this);
         }
 
         public void bindGalleryItem(GalleryItem galleryItem){
+            mGalleryItem = galleryItem;
+
             Picasso.with(getActivity())
                     .load(galleryItem.getUrl())
                     .placeholder(android.R.drawable.btn_star)
                     .into(mItemImageView);
+        }
+
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, mGalleryItem.getPhotoPageUri());
+            startActivity(intent);
         }
     }
 

@@ -110,9 +110,10 @@ public class FlickrFetchr {
         for(Photo photo : photos){
             if(photo.url_s == null || photo.url_s.isEmpty()) continue;
             GalleryItem item = new GalleryItem();
-            item.setId(photo.id);
-            item.setCaption(photo.title);
-            item.setUrl(photo.url_s);
+            item.setId(photo.getId());
+            item.setCaption(photo.getTitle());
+            item.setUrl(photo.getUrl_s());
+            item.setOwner(photo.getOwner());
             items.add(item);
         }
     }
