@@ -11,6 +11,7 @@ public class QueryPreferences {
     private static final String PREF_SEARCH_QUERY = "searchQuery";
     private static final String PREF_LAST_RESULT_ID = "lastResultId";
     private static final String PREF_LAST_LOAD_PAGE = "lastLoadPage";
+    private static final String PREF_IS_ALARM_ON = "isAlarmOn";
 
     public static String getStoredQuery(Context context){
         return PreferenceManager.getDefaultSharedPreferences(context)
@@ -36,16 +37,15 @@ public class QueryPreferences {
                 .apply();
     }
 
-    // PollService에서
-    public static int getLastLoadPage(Context context){
+    public static boolean isAlarmOn(Context context){
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getInt(PREF_LAST_LOAD_PAGE, 1);
+                .getBoolean(PREF_IS_ALARM_ON, false);
     }
 
-    public static void setLastLoadPage(Context context, int page){
+    public static void setAlarmOn(Context context, boolean isOn){
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()
-                .putInt(PREF_LAST_LOAD_PAGE, page)
+                .putBoolean(PREF_IS_ALARM_ON, isOn)
                 .apply();
     }
 }
