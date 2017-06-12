@@ -216,9 +216,9 @@ public class PhotoGalleryFragment extends VisibleFragment {
                 mPage = START_PAGE;
 
             if(mQuery == null) {
-                return new FlickrFetchr().fetchRecentPhotos(mPage);
+                return new FlickrFetcher().fetchRecentPhotos(mPage);
             } else {
-                return new FlickrFetchr().searchPhotos(mQuery, mPage);
+                return new FlickrFetcher().searchPhotos(mQuery, mPage);
             }
         }
 

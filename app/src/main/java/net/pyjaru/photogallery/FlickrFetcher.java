@@ -11,6 +11,7 @@ import com.google.gson.reflect.TypeToken;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ import java.util.List;
  * Created by pyjaru on 2017. 5. 4..
  */
 
-public class FlickrFetchr {
+public class FlickrFetcher {
     private static final String TAG = "FlickrFetcher";
     private static final String API_KEY = BuildConfig.FLICKR_API_KEY;
     private static final String FETCH_RECENTS_METHOD = "flickr.photos.getRecent";
@@ -99,20 +100,18 @@ public class FlickrFetchr {
     }
 
     //reference : http://m.blog.naver.com/e3jk1234/60197530396
-    private void parseItemsByGson(List<GalleryItem> items, String jsonString){
+    private void parseItemsByGson(List<GalleryItem> items, String flickrJson){
         Gson gson = new Gson();
-        JsonParser parser = new JsonParser();
-        JsonElement rootElement = parser.parse(jsonString)
-                .getAsJsonObject().get("photos")
-                .getAsJsonObject().get("photo");
-        List<Photo> photos = gson.fromJson(rootElement, new TypeToken<List<Photo>>(){}.getType());
+        FlickrModel flickr = gson.fromJson(flickrJson, FlickrModel.class);
+        List<FlickrPhoto> photos = flickr.getFlickr().getPhotos();
 
-        for(Photo photo : photos){
-            if(photo.url_s == null || photo.url_s.isEmpty()) continue;
+        for(FlickrPhoto photo : photos){
+            if(photo == null) continue;
+            if(photo.getUrl() == null || photo.getUrl().isEmpty()) continue;
             GalleryItem item = new GalleryItem();
             item.setId(photo.getId());
             item.setCaption(photo.getTitle());
-            item.setUrl(photo.getUrl_s());
+            item.setUrl(photo.getUrl());
             item.setOwner(photo.getOwner());
             items.add(item);
         }

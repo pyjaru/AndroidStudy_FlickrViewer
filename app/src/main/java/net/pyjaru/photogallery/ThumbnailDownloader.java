@@ -83,7 +83,7 @@ public class ThumbnailDownloader<T> extends HandlerThread {
 
             final Bitmap bitmap;
             if(bitmapCache.get(url) == null){
-                byte[] bitmapBytes = new FlickrFetchr().getUrlBytes(url);
+                byte[] bitmapBytes = new FlickrFetcher().getUrlBytes(url);
                 bitmap = BitmapFactory
                         .decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
                 bitmapCache.put(url, bitmap);

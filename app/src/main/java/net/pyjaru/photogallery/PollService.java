@@ -71,13 +71,13 @@ public class PollService extends IntentService {
         String query = QueryPreferences.getStoredQuery(this);
         String lastResultId = QueryPreferences.getLastResultId(this);
 
+        //List<GalleryItem> items;
         List<GalleryItem> items;
-
         //QueryPreferences에서 페이지도 가져오자..!
         if(query == null) {
-            items = new FlickrFetchr().fetchRecentPhotos(1);
+            items = new FlickrFetcher().fetchRecentPhotos(1);
         } else {
-            items = new FlickrFetchr().searchPhotos(query, 1);
+            items = new FlickrFetcher().searchPhotos(query, 1);
         }
 
         if(items.size() == 0) {
