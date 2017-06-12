@@ -26,6 +26,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".PhotoPageActivity"/>
 
         <service android:name=".PollService"/>
 
@@ -34,8 +35,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
-        <receiver
-            android:name=".NotificationReceiver"
+        <receiver android:name=".NotificationReceiver"
             android:exported="false">
             <intent-filter
                 android:priority="-999">

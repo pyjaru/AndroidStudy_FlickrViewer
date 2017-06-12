@@ -3,6 +3,7 @@ package net.pyjaru.photogallery;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.IntentService;
+//import android.app.Notification;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -12,7 +13,7 @@ import android.net.ConnectivityManager;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
+
 
 import android.util.Log;
 
@@ -100,9 +101,9 @@ public class PollService extends IntentService {
                     .setAutoCancel(true)
                     .build();
 
-            showBackgroundNotification(0, notification);
 
-            sendBroadcast(new Intent(ACTION_SHOW_NOTIFICATION), PERM_PRIVATE);
+//            sendBroadcast(new Intent(ACTION_SHOW_NOTIFICATION), PERM_PRIVATE);
+            showBackgroundNotification(0, notification);
         }
         QueryPreferences.setLastResultId(this, resultId);
     }
